@@ -20,7 +20,6 @@
     input_size: ${data.general.input_size}
     n_fft: ${data.general.n_fft}
     n_mels: ${data.general.n_mels}
-	@@ -56,12 +56,13 @@ scheduler:
 experiment:
   train: true
   test: true
