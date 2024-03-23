@@ -7,7 +7,7 @@ from omegaconf import DictConfig, OmegaConf
 from torch import nn
 from torch.utils.data import DataLoader
 from torchsummary import summary
-
+import os
 import wandb
 from data.data_collator import sen_collate_fn
 from data.dataset import SENDataset
@@ -125,6 +125,15 @@ def main(cfg: DictConfig):
                 epoch,
                 log_wandb,
             )
+
+            save_dir = "/kaggle/working/save_ckpt"
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+
+            # Tiếp tục lưu trữ trọng số của mô hình
+            torch.save(speech_encoder.state_dict(), os.path.join(save_dir, "speech_encoder.pt"))
+            torch.save(image_encoder.state_dict(), os.path.join(save_dir, "image_encoder.pt"))
+            torch.save(classifier.state_dict(), os.path.join(save_dir, "classifier.pt"))
 
             torch.save(speech_encoder.state_dict(), "/kaggle/working/save_ckpt/speech_encoder.pt")
             torch.save(image_encoder.state_dict(), "/kaggle/working/save_ckpt/image_encoder.pt")
