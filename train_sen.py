@@ -135,9 +135,9 @@ def main(cfg: DictConfig):
             torch.save(image_encoder.state_dict(), os.path.join(save_dir, "image_encoder.pt"))
             torch.save(classifier.state_dict(), os.path.join(save_dir, "classifier.pt"))
 
-            torch.save(speech_encoder.state_dict(), "/kaggle/working/save_ckpt/speech_encoder.pt")
-            torch.save(image_encoder.state_dict(), "/kaggle/working/save_ckpt/image_encoder.pt")
-            torch.save(classifier.state_dict(), "/kaggle/working/save_ckpt/classifier.pt")
+            # torch.save(speech_encoder.state_dict(), "/kaggle/working/save_ckpt/speech_encoder.pt")
+            # torch.save(image_encoder.state_dict(), "/kaggle/working/save_ckpt/image_encoder.pt")
+            # torch.save(classifier.state_dict(), "/kaggle/working/save_ckpt/classifier.pt")
 
     print("Train result:", train_result)
     print("Eval result:", eval_result)
