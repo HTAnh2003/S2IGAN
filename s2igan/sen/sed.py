@@ -83,6 +83,6 @@ class SpeechEncoder(nn.Module):
         out, hidden_state = self.rnn(cnn_out)
 
         out, weights = self.self_attention(out, out, out)
-        # out = out.mean(dim=1)  # mean the time step (new 27/03/2024)
+        out = out.mean(dim=1)  # mean the time step (new 27/03/2024)
         out = torch.nn.functional.normalize(out)
         return out
