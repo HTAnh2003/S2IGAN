@@ -81,3 +81,6 @@ loss:
 ckpt:
   speech_encoder: ckpt/speech_encoder.pt
   image_encoder: ckpt/image_encoder.pt
+
+kaggle:
+  user: ""
