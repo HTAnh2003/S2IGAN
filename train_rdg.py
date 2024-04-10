@@ -29,8 +29,13 @@ config_name = "rdg_config"
 
 @hydra.main(version_base=None, config_path=config_path, config_name=config_name)
 def main(cfg: DictConfig):
+    bs = cfg.data.general.batch_size
+    attn_heads = cfg.model.speech_encoder.attn_heads
+    attn_dropout = cfg.model.speech_encoder.attn_dropout
+    rnn_dropout = cfg.model.speech_encoder.rnn_dropout
+    lr = cfg.optimizer.lr
     if cfg.experiment.log_wandb:
-        wandb.init(project="speech2image", name="RDG")
+        wandb.init(project="speech2image_RDG", name=f"RDG_bs{bs}_lr{lr}_attn{attn_heads}_ad{attn_dropout}_rd{rnn_dropout}_{cfg.kaggle.user}")
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     multi_gpu = torch.cuda.device_count() > 1
