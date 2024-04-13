@@ -46,9 +46,9 @@ class SENDataset(Dataset):
             'train': T.Compose(
                 [
                     T.ToTensor(),
-                    # T.RandomRotation(degrees=(0, 180)), # xoay ảnh ngẫu nhiên từ 0 đến 180 độ
-                    # T.RandomVerticalFlip(p=0.5), # lật ảnh ngẫu nhiên theo chiều dọc với xác suất 0.5
-                    T.RandomCrop(32, padding=4), # cắt ảnh ngẫu nhiên với kích thước 32x32 và padding 4
+                    T.RandomRotation(degrees=(0, 180)), # xoay ảnh ngẫu nhiên từ 0 đến 180 độ
+                    T.RandomVerticalFlip(p=0.5), # lật ảnh ngẫu nhiên theo chiều dọc với xác suất 0.5
+                    # T.RandomCrop(200, padding=4), # cắt ảnh ngẫu nhiên với kích thước 32x32 và padding 4
                     T.RandomHorizontalFlip(p=0.5), # lật ảnh ngẫu nhiên theo chiều ngang với xác suất 0.5
                     T.Resize((input_size, input_size)), # resize ảnh về kích thước (input_size, input_size)
                     T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)), # chuẩn hóa ảnh
@@ -130,9 +130,9 @@ class RDGDataset(Dataset):
             'train': T.Compose(
                 [
                     T.ToTensor(),
-                    # T.RandomRotation(degrees=(0, 180)),
-                    # T.RandomVerticalFlip(p=0.5),
-                    T.RandomCrop(32, padding=4),
+                    T.RandomRotation(degrees=(0, 180)),
+                    T.RandomVerticalFlip(p=0.5),
+                    # T.RandomCrop(200, padding=4),
                     T.RandomHorizontalFlip(p=0.5),
                     T.Resize((input_size, input_size)),
                     T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
