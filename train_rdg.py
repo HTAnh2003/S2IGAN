@@ -7,7 +7,7 @@ from omegaconf import DictConfig, OmegaConf
 from torch import nn
 from torch.utils.data import DataLoader
 from torchsummary import summary
-
+import os
 import wandb
 from data.data_collator import rdg_collate_fn
 from data.dataset import RDGDataset
@@ -35,7 +35,7 @@ def main(cfg: DictConfig):
     rnn_dropout = cfg.model.speech_encoder.rnn_dropout
     lr = cfg.optimizer.lr
     if cfg.experiment.log_wandb:
-        wandb.init(project="speech2image_RDG", name=f"RDG_bs{bs}_lr{lr}_attn{attn_heads}_ad{attn_dropout}_rd{rnn_dropout}")
+        wandb.init(project="speech2image_RDG", name=f"RDG_bs{bs}_lr{lr}_attn{attn_heads}_ad{attn_dropout}_rd{rnn_dropout}_{cfg.kaggle.user}")
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     multi_gpu = torch.cuda.device_count() > 1
@@ -69,6 +69,21 @@ def main(cfg: DictConfig):
         print(speech_encoder.load_state_dict(torch.load(cfg.ckpt.speech_encoder)))
         set_non_grad(image_encoder)
         set_non_grad(speech_encoder)
+    if cfg.ckpt.generator:
+        print("Loading Generator state dict...")
+        print(generator.load_state_dict(torch.load(cfg.ckpt.generator)))
+    if cfg.ckpt.discriminator_64:
+        print("Loading Discriminator 64 state dict...")
+        print(discrminator_64.load_state_dict(torch.load(cfg.ckpt.discriminator_64)))
+    if cfg.ckpt.discriminator_128:
+        print("Loading Discriminator 128 state dict...")
+        print(discrminator_128.load_state_dict(torch.load(cfg.ckpt.discriminator_128)))
+    if cfg.ckpt.discriminator_256:
+        print("Loading Discriminator 256 state dict...")
+        print(discrminator_256.load_state_dict(torch.load(cfg.ckpt.discriminator_256)))
+    if cfg.ckpt.relation_classifier:
+        print("Loading Relation Classifier state dict...")
+        print(relation_classifier.load_state_dict(torch.load(cfg.ckpt.relation_classifier)))
 
     if multi_gpu:
         generator = nn.DataParallel(generator, device_ids=device_ids)
@@ -166,6 +181,24 @@ def main(cfg: DictConfig):
                 epoch,
                 log_wandb,
             )
+    
+    save_dir = "/kaggle/working/ckpt_rdg"
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    # Save model parameters and optimizer parameters
+    torch.save({
+                'epoch': epoch,
+                'generator': generator.state_dict(),
+                'discrminator_64': discrminator_64.state_dict(),
+                'discrminator_128': discrminator_128.state_dict(),
+                'discrminator_256': discrminator_256.state_dict(),
+                'relation_classifier': relation_classifier.state_dict(),
+                'image_encoder': image_encoder.state_dict(),
+                'speech_encoder': speech_encoder.state_dict(),
+                'optimizer_generator': optimizer_generator.state_dict(),
+                'optimizer_discrminator': optimizer_discrminator.state_dict(),
+                'optimizer_rs': optimizer_rs.state_dict(),
+            })
     print("Train result:", train_result)
 
 

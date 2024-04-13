@@ -51,7 +51,7 @@ optimizer:
 
 scheduler:
   use: true
-  pct_start: 0.5
+  pct_start: 0.1 # 0.5
 
 experiment:
   train: true
