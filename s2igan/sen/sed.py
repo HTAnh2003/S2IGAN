@@ -51,6 +51,11 @@ class SpeechEncoder(nn.Module):
             dropout=attn_dropout,
             batch_first=True,
         )
+        self.feed_forward = nn.Sequential(
+            nn.Linear(self.output_dim, self.output_dim),
+            nn.SiLU(),
+            nn.Linear(self.output_dim, self.output_dim),
+        )
 
     def get_params(self):
         return [p for p in self.parameters() if p.requires_grad]
@@ -85,4 +90,5 @@ class SpeechEncoder(nn.Module):
         out, weights = self.self_attention(out, out, out)
         out = out.mean(dim=1)  # mean the time step (new 27/03/2024)
         out = torch.nn.functional.normalize(out)
+        out = self.feed_forward(out)
         return out
