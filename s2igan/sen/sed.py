@@ -26,7 +26,7 @@ class SpeechEncoder(nn.Module):
             nn.Conv1d(input_dim, cnn_dim[0], 7 , stride),
             nn.BatchNorm1d(cnn_dim[0]),
             nn.SiLU(),
-            nn.Conv1d(cnn_dim[0], cnn_dim[1], 3, stride),
+            nn.Conv1d(cnn_dim[0], cnn_dim[1], 5, stride),
             nn.BatchNorm1d(cnn_dim[1]),
             nn.SiLU()
         )
