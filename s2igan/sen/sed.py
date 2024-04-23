@@ -22,16 +22,26 @@ class SpeechEncoder(nn.Module):
     ):
         super().__init__()
         assert rnn_type in ["lstm", "gru"]
-        self.cnn = nn.Sequential(
+        self.cnn_1 = nn.Sequential(
             nn.Conv1d(input_dim, cnn_dim[0], 7 , stride),
             nn.BatchNorm1d(cnn_dim[0]),
             nn.SiLU(),
-            nn.Conv1d(cnn_dim[0], cnn_dim[1], 3 , stride),
+            nn.Conv1d(cnn_dim[0], cnn_dim[1], 5 , stride),
             nn.BatchNorm1d(cnn_dim[1]),
             nn.SiLU()
         )
+        self.cnn_2 = nn.Sequential(
+            nn.Conv1d(cnn_dim[1], cnn_dim[0], 7 , stride),
+            nn.BatchNorm1d(cnn_dim[0]),
+            nn.SiLU(),
+            nn.Conv1d(cnn_dim[0], cnn_dim[1], 5 , stride),
+            nn.BatchNorm1d(cnn_dim[1]),
+            nn.SiLU()
+        )
+
         self.kernel_size = kernel_size
         self.stride = stride
+
         rnn_kwargs = dict(
             input_size=cnn_dim[1],
             hidden_size=rnn_dim,
@@ -65,7 +75,8 @@ class SpeechEncoder(nn.Module):
         mel_spec (-1, 40, len)
         output (-1, len, rnn_dim * (int(bidirectional) + 1))
         """
-        cnn_out = self.cnn(mel_spec)
+        cnn_out = self.cnn_1(mel_spec)
+        cnn_out = self.cnn_2(cnn_out)
 
         # l = [
         #     torch.div(y - self.kernel_size, self.stride, rounding_mode="trunc") + 1
@@ -88,7 +99,7 @@ class SpeechEncoder(nn.Module):
         out, hidden_state = self.rnn(cnn_out)
 
         out, weights = self.self_attention(out, out, out)
-        out = out.mean(dim=1)  # mean the time step (new 27/03/2024)
+        out = out.mean(dim=1)  
         out = torch.nn.functional.normalize(out)
         out = self.feed_forward(out)
         return out
