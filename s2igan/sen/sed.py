@@ -62,9 +62,10 @@ class SpeechEncoder(nn.Module):
             batch_first=True,
         )
         self.feed_forward = nn.Sequential(
-            nn.Linear(self.output_dim, self.output_dim),
+            nn.Linear(self.output_dim, self.output_dim*2),
+            nn.Linear(self.output_dim*2, self.output_dim*4),
             nn.SiLU(),
-            nn.Linear(self.output_dim, self.output_dim),
+            nn.Linear(self.output_dim*4, self.output_dim),
         )
 
     def get_params(self):
