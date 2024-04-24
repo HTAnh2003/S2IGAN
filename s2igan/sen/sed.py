@@ -26,12 +26,12 @@ class SpeechEncoder(nn.Module):
             nn.Conv1d(input_dim, cnn_dim[0], 7 , stride),
             nn.BatchNorm1d(cnn_dim[0]),
             nn.SiLU(),
-            nn.Conv1d(cnn_dim[0], 1024, 5 , stride),
+            nn.Conv1d(cnn_dim[0], 256, 5 , stride),
             nn.BatchNorm1d(256),
             nn.SiLU()
         )
         self.cnn_2 = nn.Sequential(
-            nn.Conv1d(1024, cnn_dim[1], 7 , stride),
+            nn.Conv1d(256, cnn_dim[1], 7 , stride),
             nn.BatchNorm1d(cnn_dim[1]),
             nn.SiLU(),
             nn.Conv1d(cnn_dim[1], 512, 5 , stride),
