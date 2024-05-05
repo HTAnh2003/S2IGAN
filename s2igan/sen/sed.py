@@ -100,7 +100,7 @@ class SpeechEncoder(nn.Module):
         out, hidden_state = self.rnn(cnn_out)
 
         out, weights = self.self_attention(out, out, out)
+        out = self.feed_forward(out)
         out = out.mean(dim=1)  
         out = torch.nn.functional.normalize(out)
-        out = self.feed_forward(out)
         return out
