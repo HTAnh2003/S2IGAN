@@ -56,18 +56,25 @@ def sen_train_epoch(
         run_img_acc += img_acc
         run_speech_acc += speech_acc
 
-        if log_wandb:
-            wandb.log({"train/sen_loss": loss})
-            wandb.log({"train/matching_loss": match_loss.item()})
-            wandb.log({"train/distinctive_loss": dist_loss.item()})
-            wandb.log({"train/image_accuracy": img_acc})
-            wandb.log({"train/speech_accuracy": speech_acc})
-            wandb.log({"train/epoch": epoch})
-            wandb.log({"train/lr-OneCycleLR": scheduler.get_last_lr()[0]})
+        # if log_wandb:
+        #     wandb.log({"train/sen_loss": loss})
+        #     wandb.log({"train/matching_loss": match_loss.item()})
+        #     wandb.log({"train/distinctive_loss": dist_loss.item()})
+        #     wandb.log({"train/image_accuracy": img_acc})
+        #     wandb.log({"train/speech_accuracy": speech_acc})
+        #     wandb.log({"train/epoch": epoch})
+        #     wandb.log({"train/lr-OneCycleLR": scheduler.get_last_lr()[0]})
 
         pbar.set_description(
             f"[Epoch: {epoch}] Loss: {loss:.2f} | Image Acc: {img_acc:.2f}% | Speech Acc: {speech_acc:.2f}%"
         )
+
+        if log_wandb:
+            wandb.log({"train/sen_loss_epoch": run_loss / size})
+            wandb.log({"train/image_accuracy_epoch": run_img_acc / size})
+            wandb.log({"train/speech_accuracy_epoch": run_speech_acc / size})
+            wandb.log({"train/epoch": epoch})
+            wandb.log({"train/lr-OneCycleLR": scheduler.get_last_lr()[0]})
 
     return {
         "loss": run_loss / size,
@@ -119,16 +126,22 @@ def sen_eval_epoch(
             run_img_acc += img_acc
             run_speech_acc += speech_acc
 
-            if log_wandb:
-                wandb.log({"val/sen_loss": loss})
-                wandb.log({"val/matching_loss": match_loss.item()})
-                wandb.log({"val/distinctive_loss": dist_loss.item()})
-                wandb.log({"val/image_accuracy": img_acc})
-                wandb.log({"val/speech_accuracy": speech_acc})
+            # if log_wandb:
+            #     wandb.log({"val/sen_loss": loss})
+            #     wandb.log({"val/matching_loss": match_loss.item()})
+            #     wandb.log({"val/distinctive_loss": dist_loss.item()})
+            #     wandb.log({"val/image_accuracy": img_acc})
+            #     wandb.log({"val/speech_accuracy": speech_acc})
 
             pbar.set_description(
                 f"[Epoch: {epoch}] Loss: {loss:.2f} | Image Acc: {img_acc:.2f}% | Speech Acc: {speech_acc:.2f}%"
             )
+            
+            if log_wandb:
+                wandb.log({"val/sen_loss_epoch": run_loss / size})
+                wandb.log({"val/image_accuracy_epoch": run_img_acc / size})
+                wandb.log({"val/speech_accuracy_epoch": run_speech_acc / size})
+                wandb.log({"val/epoch": epoch})
 
     return {
         "loss": run_loss / size,
