@@ -148,3 +148,110 @@ def sen_eval_epoch(
         "img_acc": run_img_acc / size,
         "speech_acc": run_speech_acc / size,
     }
+
+
+def sed_train_epoch( 
+    speech_encoder,
+    classifier,
+    dataloader,
+    optimizer,
+    scheduler,
+    criterion,
+    device,
+    epoch,
+    log_wandb: bool = False,
+):
+    size = len(dataloader)
+    run_loss = 0
+    run_speech_acc = 0
+    pbar = tqdm(dataloader, total=size)
+    for (specs, len_specs, labels) in pbar:
+        specs, len_specs, labels = (
+            specs.to(device),
+            len_specs.to(device),
+            labels.to(device),
+        )
+
+        optimizer.zero_grad()
+
+        A = speech_encoder(specs, len_specs)
+        cls_speech = classifier(A)
+
+        loss = criterion(cls_speech, labels) 
+        loss.backward()
+
+        optimizer.step()
+        scheduler.step()
+
+        loss = loss.item()
+
+        speech_acc = (cls_speech.argmax(-1) == labels).sum() / labels.size(0) * 100
+
+        speech_acc = speech_acc.item()
+
+        run_loss += loss
+        run_speech_acc += speech_acc
+
+        if log_wandb:
+            wandb.log({"train/sed_loss": loss})
+            wandb.log({"train/speech_accuracy": speech_acc})
+            wandb.log({"train/epoch": epoch})
+            wandb.log({"train/lr-OneCycleLR": scheduler.get_last_lr()[0]})
+
+        pbar.set_description(
+            f"[Epoch: {epoch}] Loss: {loss:.2f} | Speech Acc: {speech_acc:.2f}%"
+        )
+
+    return {
+        "loss": run_loss / size,
+        "speech_acc": run_speech_acc / size,
+    }
+
+
+def sed_eval_epoch( 
+    speech_encoder,
+    classifier,
+    dataloader,
+    criterion,
+    device,
+    epoch,
+    log_wandb: bool = False,
+):
+    size = len(dataloader)
+    run_loss = 0
+    run_speech_acc = 0
+    pbar = tqdm(dataloader, total=size)
+    with torch.no_grad():
+        for (specs, len_specs, labels) in pbar:
+            specs, len_specs, labels = (
+                specs.to(device),
+                len_specs.to(device),
+                labels.to(device),
+            )
+
+            A = speech_encoder(specs, len_specs)
+            cls_speech = classifier(A)
+
+            loss = criterion( cls_speech, labels) 
+
+            loss = loss.item()
+
+            speech_acc = (cls_speech.argmax(-1) == labels).sum() / labels.size(0) * 100
+
+            speech_acc = speech_acc.item()
+
+            run_loss += loss
+            run_speech_acc += speech_acc
+
+            if log_wandb:
+                wandb.log({"val/sed_loss": loss}) 
+                wandb.log({"val/speech_accuracy": speech_acc})
+
+            pbar.set_description(
+                f"[Epoch: {epoch}] Loss: {loss:.2f} | Speech Acc: {speech_acc:.2f}%"
+            )
+
+    return {
+        "loss": run_loss / size,
+        "speech_acc": run_speech_acc / size,
+    }
